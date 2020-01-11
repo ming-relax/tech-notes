@@ -34,11 +34,13 @@ func (s *server) HelloBiStream(srv pb.Greeter_HelloBiStreamServer) error {
 		if err != nil {
 			return err
 		}
-
-		err = srv.Send(&pb.HelloReply{Message: req.GetName()})
-		if err != nil {
-			return err
-		}
+		// simulate unary rpc, start a go routine to handle this.
+		go func(reqParam *pb.HelloRequest) {
+			err = srv.Send(&pb.HelloReply{Message: reqParam.GetName()})
+			if err != nil {
+				log.Fatalf("send error: %v", err)
+			}
+		}(req)
 	}
 }
 
